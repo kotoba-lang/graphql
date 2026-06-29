@@ -1,5 +1,7 @@
 # graphql-clj (GraphQL スキーマ実行)
 
+[![CI](https://github.com/kotoba-lang/graphql/actions/workflows/ci.yml/badge.svg)](https://github.com/kotoba-lang/graphql/actions/workflows/ci.yml)
+
 Handle **GraphQL SDL → EDN schema AST** and execute queries over **host-injected
 resolvers** in portable Clojure — every namespace is `.cljc`, with **zero
 third-party runtime deps**, so it runs on the JVM, ClojureScript, and
