@@ -142,5 +142,5 @@ stays pure orchestration.
 ## Test
 
 ```
-clojure -X:test
+clojure -M:test
 ```
