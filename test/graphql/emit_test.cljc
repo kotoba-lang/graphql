@@ -14,6 +14,23 @@
   (is (= "type User implements Node {\n  id: ID!\n}"
          (g/item [:type :User {:implements [:Node]} [:field :id :ID!]]))))
 
+(deftest rejects-names-that-would-inject-arbitrary-sdl
+  ;; A caller-supplied field/type name containing `}`, a newline, or other
+  ;; SDL structural characters used to close the current block and splice
+  ;; in an entirely new top-level definition -- verified full-chain: the
+  ;; resulting document round-tripped through this repo's OWN
+  ;; graphql.sdl/parse-schema, which registered the injected type as a
+  ;; legitimate schema member. Must throw instead.
+  (let [evil-name "id: ID! }\ntype Evil { pwn: String }\ntype Pad { z"]
+    (is (thrown? #?(:clj clojure.lang.ExceptionInfo :cljs js/Error)
+                 (g/item [:type "User" [:field evil-name :ID!]]))))
+  (is (thrown? #?(:clj clojure.lang.ExceptionInfo :cljs js/Error) (g/field [:field "id\n}" :ID!]))
+      "newline in a field name")
+  (is (thrown? #?(:clj clojure.lang.ExceptionInfo :cljs js/Error) (g/field [:field :id "String {"]))
+      "brace in a type name")
+  (is (= "id: ID!" (g/field [:field :id :ID!]))
+      "the ordinary non-null-suffix convention is unaffected"))
+
 (deftest schema-document
   (let [src (g/graphql
               [:schema {:query :Query}]
