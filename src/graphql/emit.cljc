@@ -2,14 +2,44 @@
   "EDN hiccup-style GraphQL definitions to SDL."
   (:require [clojure.string :as str]))
 
-(defn- id [x] (if (keyword? x) (name x) (str x)))
+(defn- valid-graphql-name?
+  "Matches the GraphQL spec's Name production: /[_A-Za-z][_0-9A-Za-z]*/."
+  [s]
+  (boolean (re-matches #"[_A-Za-z][_0-9A-Za-z]*" s)))
 
-(defn- gtype [t]
+(defn- id
+  "Coerce `x` (a keyword or string) to a GraphQL Name, splicing it verbatim
+  into the emitted SDL. Every field/type/enum-value/argument name funnels
+  through this, so it's the single choke point that must reject anything
+  outside the Name grammar -- a caller-supplied string containing `}` `{`
+  or a newline could otherwise close the current block and inject an
+  entirely new top-level SDL definition (verified: the resulting document
+  round-trips through this repo's own graphql.sdl/parse-schema, which
+  registers the injected type as legitimate)."
+  [x]
+  (let [s (if (keyword? x) (name x) (str x))]
+    (when-not (valid-graphql-name? s)
+      (throw (ex-info "graphql: invalid GraphQL Name (must match [_A-Za-z][_0-9A-Za-z]*)"
+                       {:name s})))
+    s))
+
+(defn- gtype
+  "Coerce `t` to a GraphQL type reference. Like `id`, but also allows a
+  single trailing `!` (the non-null marker, e.g. `ID!` -- pervasive
+  throughout this library's own test suite) after an otherwise-valid Name."
+  [t]
   (cond
     (and (vector? t) (= :list (first t))) (str "[" (gtype (second t)) "]")
     (and (vector? t) (= :list! (first t))) (str "[" (gtype (second t)) "]!")
-    (keyword? t) (name t)
-    :else (str t)))
+    :else
+    (let [s (if (keyword? t) (name t) (str t))
+          non-null? (str/ends-with? s "!")
+          base (cond-> s non-null? (subs 0 (dec (count s))))]
+      (when-not (valid-graphql-name? base)
+        (throw (ex-info (str "graphql: invalid GraphQL type name (must match "
+                              "[_A-Za-z][_0-9A-Za-z]*, optionally suffixed with a single !)")
+                         {:name s})))
+      s)))
 
 (defn field
   "Compile one EDN GraphQL field definition to SDL."
