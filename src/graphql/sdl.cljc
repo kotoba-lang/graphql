@@ -14,7 +14,7 @@
 
   対応していないもの: 入れ子リスト型(実態は最外殻のみ保持)、デフォルト値の型検査、
   引数デフォルト値(スキップ)、フラグメント、型拡張 (extend type)。"
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [graphql.model :as m]))
 
 ;; --- tokenizer ---

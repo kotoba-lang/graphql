@@ -2,7 +2,12 @@
  ;; Zero third-party runtime deps — every namespace is portable .cljc (JVM, CLJS, SCI).
  ;; SDL and query parsing use hand-rolled tokenizers; host may inject resolvers via
  ;; graphql.ports/IResolver or use graphql.execute/default-ports for plain-map access.
- :deps {}
+ :deps {
+        ;; kotoba.lang.text, not clojure.string. Pinned as an explicit floor:
+        ;; tools.deps takes the NEWEST sha it is shown, so without a floor here
+        ;; this repo silently rides whatever a sibling happens to name.
+        io.github.kotoba-lang/text {:git/sha "73bdb13ae7a3d004b44bca08be03a3191157a38f"}
+       }
  :aliases
  {:test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner
