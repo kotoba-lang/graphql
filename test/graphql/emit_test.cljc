@@ -1,5 +1,5 @@
 (ns graphql.emit-test
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [clojure.test :refer [deftest is]]
             [graphql.emit :as g]
             [kotoba.graphql :as kg]))

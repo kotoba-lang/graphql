@@ -1,6 +1,6 @@
 (ns graphql.emit
   "EDN hiccup-style GraphQL definitions to SDL."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (defn- valid-graphql-name?
   "Matches the GraphQL spec's Name production: /[_A-Za-z][_0-9A-Za-z]*/."

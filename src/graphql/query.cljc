@@ -15,7 +15,7 @@
 
   セレクションの形式:
     {:graphql/field \"user\" :graphql/args {\"id\" \"1\"} :graphql/selections [...]}"
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 ;; --- tokenizer ---
 
